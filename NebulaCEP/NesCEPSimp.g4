@@ -20,8 +20,8 @@ p
    ;
 
 quantifier
-	: TIMES? INT
-    | TIMESPLUS? INT
+	: TIMES INT
+    | TIMESPLUS INT
 	| TIMES '[' INT COMMA INT ']'
 	| UNTIL expression   
 	;
@@ -67,13 +67,17 @@ expressions
 
 // Simplified approach for expression
 expression
-    : NAME
+    : notOperator=(NOT | '!') expression                            #notExpression
+    | expression logicalOperator expression                         #logicalExpression
+    | predicate IS NOT? testValue=(TRUE | FALSE | UNKNOWN)          #isExpression
+    | predicate                                                     #predicateExpression
     ;
 
 //sliding Windows
 slidingWindow
    : ONE_DECIMAL singularEntity
    | INT pluralEntity
+   | TIME DOT pluralEntity LR_BRACKET INT RR_BRACKET 
    ; 
 
 singularEntity
@@ -128,12 +132,14 @@ HOURS:								'HOURS';
 MINUTE:					            'MINUTE';
 MINUTES:							'MINUTES';
 EVENT:								'EVENT';
+TIME :								'TIME' ;
 
  // Constructors symbols
 LR_BRACKET:                          '(';
 RR_BRACKET:                          ')';
 COMMA:                               ',';
 ONE_DECIMAL:                         '1';
+DOT: 								 '.';
 
 NAME
    :
